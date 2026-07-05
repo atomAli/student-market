@@ -3,7 +3,8 @@ import { auth } from "@/auth";
 import { writeFile, mkdir } from "fs/promises";
 import path from "path";
 
-const UPLOAD_DIR = process.env.VERCEL
+const USE_TMP = process.env.VERCEL === "1";
+const UPLOAD_DIR = USE_TMP
   ? "/tmp/uploads"
   : path.join(process.cwd(), "public", "uploads");
 
@@ -35,9 +36,9 @@ export async function POST(req) {
   const filepath = path.join(UPLOAD_DIR, filename);
   await writeFile(filepath, buffer);
 
-  const baseUrl = process.env.VERCEL
-    ? process.env.NEXTAUTH_URL + "/api/uploads"
-    : "";
+  const url = USE_TMP
+    ? process.env.NEXTAUTH_URL + "/api/uploads/" + filename
+    : "/uploads/" + filename;
 
-  return NextResponse.json({ url: baseUrl + "/uploads/" + filename });
+  return NextResponse.json({ url });
 }
