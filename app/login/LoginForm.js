@@ -1,21 +1,36 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { signIn } from "next-auth/react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { useLanguage } from "../components/LanguageContext";
-import { KeyRound, TriangleAlert } from "lucide-react";
+import { KeyRound, TriangleAlert, Check, Mail } from "lucide-react";
 
 export default function LoginForm({ callbackUrl = "/" }) {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { t } = useLanguage();
   const [form, setForm] = useState({ email: "", password: "" });
   const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    if (searchParams.get("verified") === "true") {
+      setSuccess("Email verified! You can now log in.");
+    }
+    if (searchParams.get("error") === "invalid-token") {
+      setError("Invalid or expired verification link.");
+    }
+    if (searchParams.get("error") === "already-verified") {
+      setSuccess("Email already verified. You can log in.");
+    }
+  }, [searchParams]);
 
   async function handleSubmit(e) {
     e.preventDefault();
     setError("");
+    setSuccess("");
     setLoading(true);
     const res = await signIn("credentials", {
       email: form.email,
@@ -23,8 +38,13 @@ export default function LoginForm({ callbackUrl = "/" }) {
       redirect: false,
     });
     setLoading(false);
-    if (res?.error) setError(t("wrongCredentials"));
-    else router.push(callbackUrl);
+    if (res?.error === "EMAIL_NOT_VERIFIED") {
+      setError("Please verify your email first. Check your inbox.");
+    } else if (res?.error) {
+      setError(t("wrongCredentials"));
+    } else {
+      router.push(callbackUrl);
+    }
   }
 
   return (
@@ -35,9 +55,14 @@ export default function LoginForm({ callbackUrl = "/" }) {
           <h1 className="text-2xl font-bold text-slate-800">{t("loginTitle")}</h1>
           <p className="text-slate-500 text-sm mt-1">{t("loginSubtitle")}</p>
         </div>
+        {success && (
+          <div className="bg-green-50 border border-green-200 text-green-700 rounded-xl p-3 mb-4 text-sm flex items-center gap-1">
+            <Check className="w-4 h-4 shrink-0" />{success}
+          </div>
+        )}
         {error && (
-          <div className="bg-red-50 border border-red-200 text-red-600 rounded-xl p-3 mb-4 text-sm">
-            <TriangleAlert className="w-4 h-4 inline mr-1" />{error}
+          <div className="bg-red-50 border border-red-200 text-red-600 rounded-xl p-3 mb-4 text-sm flex items-center gap-1">
+            <TriangleAlert className="w-4 h-4 shrink-0" />{error}
           </div>
         )}
         <form onSubmit={handleSubmit} className="space-y-4">
