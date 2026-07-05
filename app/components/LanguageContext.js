@@ -5,17 +5,17 @@ import { translations } from "@/lib/i18n";
 const LanguageContext = createContext(null);
 
 export function LanguageProvider({ children }) {
-  const [lang, setLang] = useState("fa");
+  const [lang, setLang] = useState("en");
 
   function applyDir(l) {
-    const dir = translations[l]?.dir || "rtl";
+    const dir = translations[l]?.dir || "ltr";
     document.documentElement.setAttribute("dir", dir);
     document.documentElement.setAttribute("lang", l);
   }
 
   useEffect(() => {
     Promise.resolve().then(() => {
-      const saved = localStorage.getItem("lang") || "fa";
+      const saved = localStorage.getItem("lang") || "en";
       setLang(saved);
       applyDir(saved);
     });
