@@ -4,7 +4,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { useSession } from "next-auth/react";
 import { useLanguage } from "./LanguageContext";
-import { Camera, House, MapPin } from "lucide-react";
+import { Camera, House, MapPin, CalendarDays } from "lucide-react";
 
 const categoryStyles = {
   "Camera singola": { bg: "bg-emerald-100", text: "text-emerald-700" },
@@ -81,8 +81,9 @@ export default function ProductCard({ product, favoritedIds }) {
               {product.category}
             </span>
           </div>
-          <p className="text-slate-500 text-xs line-clamp-2 flex-1 mb-1 leading-relaxed">
-            {product.description}
+          <p className="text-slate-500 text-xs flex items-center gap-1 mb-1">
+            <CalendarDays className="w-3 h-3" />
+            {new Date(product.createdAt).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
           </p>
           {product.city && <p className="text-indigo-500 text-xs font-medium mb-3 flex items-center gap-1"><MapPin className="w-3 h-3" />{product.city}</p>}
           <div className="flex items-center justify-between mt-auto border-t border-slate-50 pt-3">

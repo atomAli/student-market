@@ -8,12 +8,21 @@ import { useLanguage } from "./LanguageContext";
 
 const MESSINA_CENTER = [38.1938, 15.5540];
 
-function markerIcon(type = "home") {
-  const svg = type === "selected"
+const CATEGORY_EMOJI = {
+  "Camera singola": "🛏️",
+  "Camera doppia": "🛌",
+  "Posto letto": "🛏️",
+  "Monolocale": "🏠",
+  "Bilocale": "🏢",
+  "Appartamento": "🏢",
+};
+
+function markerIcon(type = "home", category = "") {
+  const content = type === "selected"
     ? `<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="white" stroke="white" stroke-width="2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="3" fill="#4f46e5" stroke="none"/></svg>`
-    : `<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="white" stroke="white" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>`;
+    : (CATEGORY_EMOJI[category] || "🏠");
   return L.divIcon({
-    html: `<div style="background:#4f46e5;color:white;width:34px;height:34px;border-radius:999px;display:flex;align-items:center;justify-content:center;font-size:18px;border:3px solid white;box-shadow:0 6px 18px rgba(15,23,42,.25)">${svg}</div>`,
+    html: `<div style="background:#4f46e5;color:white;width:34px;height:34px;border-radius:999px;display:flex;align-items:center;justify-content:center;font-size:16px;border:3px solid white;box-shadow:0 6px 18px rgba(15,23,42,.25)">${content}</div>`,
     className: "",
     iconSize: [34, 34],
     iconAnchor: [17, 34],
@@ -52,7 +61,7 @@ export default function RentalMap({ products = [], selected, onSelect, height = 
         {products
           .filter((p) => typeof p.latitude === "number" && typeof p.longitude === "number")
           .map((p) => (
-            <Marker key={p.id} position={[p.latitude, p.longitude]} icon={markerIcon("home")}> 
+            <Marker key={p.id} position={[p.latitude, p.longitude]} icon={markerIcon("product", p.category)}> 
               <Popup>
                 <div style={{ minWidth: 180 }}>
                   {p.image && <img src={p.image} style={{ width: "100%", height: 80, objectFit: "cover", borderRadius: 8, marginBottom: 8 }} onError={(e) => e.target.style.display = "none"} />}

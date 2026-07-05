@@ -273,6 +273,9 @@ export default function ProductPage() {
               <p className="text-slate-500 text-sm mt-1">
                 {t("seller")}: {product.seller?.name}
               </p>
+              <p className="text-slate-400 text-xs mt-0.5">
+                {new Date(product.createdAt).toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" })}
+              </p>
             </div>
             {canChat && (
               <button
