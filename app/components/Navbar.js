@@ -4,7 +4,13 @@ import { useState, useEffect, useRef } from "react";
 import { useSession, signOut } from "next-auth/react";
 import { useLanguage } from "./LanguageContext";
 import LanguageSwitcher from "./LanguageSwitcher";
-import { GraduationCap, MapPin, MessageSquare, PlusCircle } from "lucide-react";
+import {
+  GraduationCap,
+  MapPin,
+  MessageSquare,
+  PlusCircle,
+  LogOut,
+} from "lucide-react";
 
 function navLinks({ mobile, t, session, isAdmin, unread, closeMenu }) {
   const base = mobile
@@ -42,6 +48,15 @@ function navLinks({ mobile, t, session, isAdmin, unread, closeMenu }) {
           <Link href="/dashboard" className={base} onClick={closeMenu}>
             {t("dashboard")}
           </Link>
+          <button
+            onClick={() => {
+              signOut();
+              closeMenu();
+            }}
+            className={base + " text-red-300 hover:text-red-200"}
+          >
+            <LogOut className="w-4 h-4" />
+          </button>
         </>
       ) : (
         <>
@@ -139,6 +154,18 @@ export default function Navbar() {
           </div>
 
           <LanguageSwitcher />
+          {session && (
+            <button
+              onClick={() => {
+                signOut();
+                closeMenu();
+              }}
+              className="hidden lg:flex w-9 h-9 rounded-lg items-center justify-center hover:bg-white/10 transition"
+              title={t("logout")}
+            >
+              <LogOut className="w-5 h-5" />
+            </button>
+          )}
           <button
             onClick={() => setMenuOpen(!menuOpen)}
             className="lg:hidden w-9 h-9 rounded-lg flex items-center justify-center hover:bg-white/10 transition"
