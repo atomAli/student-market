@@ -4,7 +4,9 @@ import dynamic from "next/dynamic";
 import ProductCard from "../components/ProductCard";
 import { useLanguage } from "../components/LanguageContext";
 
-const RentalMap = dynamic(() => import("../components/RentalMap"), { ssr: false });
+const RentalMap = dynamic(() => import("../components/RentalMap"), {
+  ssr: false,
+});
 
 export default function MapPage() {
   const { t } = useLanguage();
@@ -22,10 +24,18 @@ export default function MapPage() {
   }, []);
 
   useEffect(() => {
-    fetch("/api/favorites/ids").then(r => r.json()).then(data => setFavoritedIds(new Set(data.ids || []))).catch(() => {});
+    fetch("/api/favorites/ids")
+      .then((r) => r.json())
+      .then((data) => setFavoritedIds(new Set(data.ids || [])))
+      .catch(() => {});
   }, []);
 
-  const mapped = products.filter((p) => typeof p.latitude === "number" && typeof p.longitude === "number");
+  const mapped = products.filter(
+    (p) =>
+      typeof p.latitude === "number" &&
+      typeof p.longitude === "number" &&
+      !p.sold,
+  );
 
   return (
     <div>
@@ -40,9 +50,17 @@ export default function MapPage() {
         <>
           <RentalMap products={mapped} height="520px" zoom={13} />
           <div className="mt-8">
-            <h2 className="font-bold text-slate-800 mb-4">{mapped.length} {t("listingsOnMap")}</h2>
+            <h2 className="font-bold text-slate-800 mb-4">
+              {mapped.length} {t("listingsOnMap")}
+            </h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">
-              {mapped.map((p) => <ProductCard key={p.id} product={p} favoritedIds={favoritedIds} />)}
+              {mapped.map((p) => (
+                <ProductCard
+                  key={p.id}
+                  product={p}
+                  favoritedIds={favoritedIds}
+                />
+              ))}
             </div>
           </div>
         </>
