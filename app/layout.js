@@ -5,7 +5,7 @@ import ThemeProvider from "./components/ThemeProvider";
 import { prisma } from "@/lib/prisma";
 import { Vazirmatn } from "next/font/google";
 
-const vazirmatn = Vazirmatn({ subsets: ["latin", "arabic"], display: "swap" });
+const vazirmatn = Vazirmatn({ subsets: ["latin", "arabic", "latin-ext"], display: "swap", preload: true });
 
 export const metadata = {
   title: "خانه دانشجویی مسینا",
