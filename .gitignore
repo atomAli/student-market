@@ -49,3 +49,6 @@ public/uploads/*
 next-env.d.ts
 
 /app/generated/prisma
+
+# Stakpak session files
+.stakpak/session*
