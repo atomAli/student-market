@@ -18,7 +18,7 @@ export async function GET(req) {
   const search = searchParams.get("search");
 
   const where = {
-    sold: false,
+    status: "active",
     ...(category ? { category } : {}),
     ...(city ? { city } : {}),
     ...(search
@@ -68,6 +68,7 @@ export async function POST(req) {
       image: coverImage,
       images: JSON.stringify(imagesArr),
       sellerId: session.user.id,
+      status: "pending",
     },
     include: { seller: { select: { name: true, email: true } } },
   });

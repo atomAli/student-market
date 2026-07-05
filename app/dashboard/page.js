@@ -1,24 +1,24 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
 import { useLanguage } from "../components/LanguageContext";
 import ProductCard from "../components/ProductCard";
-import { Heart, List, Clock, HeartOff, PackageOpen, Pencil, Trash2, MapPin, House, MessageCircle } from "lucide-react";
-
-const TABS = ["favorites", "listings", "activity"];
+import { Heart, List, Clock, ShieldCheck, HeartOff, PackageOpen, Pencil, Trash2, MapPin, House, MessageCircle, CheckCircle2, XCircle, Eye } from "lucide-react";
 
 export default function DashboardPage() {
   const { data: session, status } = useSession();
   const router = useRouter();
   const { t } = useLanguage();
+  const isAdmin = !!session?.user?.isAdmin;
   const [tab, setTab] = useState("favorites");
   const [favorites, setFavorites] = useState([]);
   const [listings, setListings] = useState([]);
   const [activity, setActivity] = useState([]);
-  const [loading, setLoading] = useState({ favorites: true, listings: true, activity: true });
+  const [adminListings, setAdminListings] = useState([]);
+  const [loading, setLoading] = useState({ favorites: true, listings: true, activity: true, adminListings: false });
   const [favIds, setFavIds] = useState(new Set());
 
   useEffect(() => {
@@ -48,6 +48,19 @@ export default function DashboardPage() {
       })
       .catch(() => setLoading((p) => ({ ...p, listings: false })));
   }, [session?.user?.id]);
+
+  const fetchAdminListings = useCallback(() => {
+    if (!session?.user?.id || !isAdmin) return;
+    setLoading((p) => ({ ...p, adminListings: true }));
+    fetch("/api/admin/listings")
+      .then((r) => r.json())
+      .then((data) => { setAdminListings(Array.isArray(data) ? data : []); setLoading((p) => ({ ...p, adminListings: false })); })
+      .catch(() => setLoading((p) => ({ ...p, adminListings: false })));
+  }, [session?.user?.id, isAdmin]);
+
+  useEffect(() => {
+    fetchAdminListings();
+  }, [fetchAdminListings]);
 
   useEffect(() => {
     if (!session?.user?.id) return;
@@ -95,6 +108,7 @@ export default function DashboardPage() {
     { key: "favorites", icon: Heart, label: t("favorites") },
     { key: "listings", icon: List, label: t("myListings") },
     { key: "activity", icon: Clock, label: t("activity") },
+    ...(isAdmin ? [{ key: "admin", icon: ShieldCheck, label: t("adminListings") }] : []),
   ];
 
   return (
@@ -104,11 +118,11 @@ export default function DashboardPage() {
         <p className="text-slate-500 text-sm mt-1">{session?.user?.name}</p>
       </div>
 
-      <div className="flex gap-1 mb-6 border-b border-slate-200">
+      <div className="flex gap-1 mb-6 border-b border-slate-200 overflow-x-auto">
         {tabList.map(({ key, icon: Icon, label }) => (
           <button key={key}
             onClick={() => setTab(key)}
-            className={"flex items-center gap-1.5 px-4 py-2.5 text-sm font-medium border-b-2 transition -mb-px "
+            className={"flex items-center gap-1.5 px-4 py-2.5 text-sm font-medium border-b-2 transition -mb-px whitespace-nowrap "
               + (tab === key ? "border-indigo-600 text-indigo-700" : "border-transparent text-slate-500 hover:text-slate-700")}
           >
             <Icon className="w-4 h-4" />
@@ -125,6 +139,9 @@ export default function DashboardPage() {
       )}
       {tab === "activity" && (
         <ActivityTab activity={activity} loading={loading.activity} t={t} />
+      )}
+      {tab === "admin" && (
+        <AdminListingsTab listings={adminListings} loading={loading.adminListings} t={t} onRefresh={fetchAdminListings} />
       )}
     </div>
   );
@@ -150,6 +167,24 @@ function FavoritesTab({ favorites, loading, t, favIds }) {
   );
 }
 
+function statusStyle(status) {
+  switch (status) {
+    case "pending": return { bg: "bg-amber-100", text: "text-amber-700", dot: "bg-amber-500" };
+    case "active": return { bg: "bg-emerald-100", text: "text-emerald-700", dot: "bg-emerald-500" };
+    case "rented": return { bg: "bg-rose-100", text: "text-rose-700", dot: "bg-rose-500" };
+    default: return { bg: "bg-slate-100", text: "text-slate-600", dot: "bg-slate-400" };
+  }
+}
+
+function statusLabel(status, t) {
+  switch (status) {
+    case "pending": return t("statusPending");
+    case "active": return t("statusActive");
+    case "rented": return t("statusRented");
+    default: return status;
+  }
+}
+
 function ListingsTab({ listings, loading, t }) {
   if (loading) return <p className="text-center py-20 text-slate-400">{t("loading")}</p>;
   if (listings.length === 0) {
@@ -166,13 +201,13 @@ function ListingsTab({ listings, loading, t }) {
   return (
     <div className="space-y-3">
       {listings.map((p) => (
-        <ListingRow key={p.id} product={p} t={t} />
+        <ListingRow key={p.id} product={p} t={t} showActions={true} />
       ))}
     </div>
   );
 }
 
-function ListingRow({ product, t }) {
+function ListingRow({ product, t, showActions, onRefresh }) {
   const images = Array.isArray(product.images) ? product.images : [];
   const cover = images[0] || product.image;
   const catStyles = {
@@ -182,17 +217,18 @@ function ListingRow({ product, t }) {
     "Monolocale": { bg: "bg-violet-100", text: "text-violet-700" },
   };
   const cat = catStyles[product.category] || { bg: "bg-slate-100", text: "text-slate-600" };
+  const sStyle = statusStyle(product.status || (product.sold ? "rented" : "active"));
 
   async function handleSold() {
     if (!confirm(t("confirmMarkSold"))) return;
     await fetch(`/api/products/${product.id}`, { method: "PATCH" });
-    window.location.reload();
+    onRefresh ? onRefresh() : window.location.reload();
   }
 
   async function handleDelete() {
     if (!confirm(t("confirmDelete"))) return;
     await fetch(`/api/products/${product.id}`, { method: "DELETE" });
-    window.location.reload();
+    onRefresh ? onRefresh() : window.location.reload();
   }
 
   return (
@@ -218,18 +254,153 @@ function ListingRow({ product, t }) {
         <div className="flex items-center gap-3 text-xs text-slate-500">
           <span className="font-bold text-indigo-700">€{product.price.toLocaleString("de-DE")}</span>
           {product.city && <span className="flex items-center gap-1"><MapPin className="w-3 h-3" />{product.city}</span>}
-          <span className={"flex items-center gap-1 " + (product.sold ? "text-rose-600" : "text-emerald-700")}>
-            {product.sold ? t("rented") : t("active")}
+          <span className={"inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-medium " + sStyle.bg + " " + sStyle.text}>
+            <span className={"w-1.5 h-1.5 rounded-full " + sStyle.dot} />
+            {statusLabel(product.status || (product.sold ? "rented" : "active"), t)}
           </span>
         </div>
       </div>
-      <div className="flex items-center gap-1 shrink-0">
-        {!product.sold && (
-          <button onClick={handleSold}
-            className="text-xs px-3 py-1.5 rounded-lg bg-amber-100 text-amber-700 hover:bg-amber-200 transition font-medium"
+      {showActions && (
+        <div className="flex items-center gap-1 shrink-0">
+          {product.status === "pending" && (
+            <span className="text-[10px] text-slate-400 italic px-2">{t("waitingApproval")}</span>
+          )}
+          {product.status === "active" && !product.sold && (
+            <button onClick={handleSold}
+              className="text-xs px-3 py-1.5 rounded-lg bg-amber-100 text-amber-700 hover:bg-amber-200 transition font-medium"
+            >
+              {t("markSold")}
+            </button>
+          )}
+          <button onClick={handleDelete}
+            className="text-xs px-3 py-1.5 rounded-lg bg-red-50 text-red-600 hover:bg-red-100 transition"
           >
-            {t("markSold")}
+            <Trash2 className="w-3.5 h-3.5" />
           </button>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function AdminListingsTab({ listings, loading, t, onRefresh }) {
+  if (loading) return <p className="text-center py-20 text-slate-400">{t("loading")}</p>;
+  if (listings.length === 0) {
+    return (
+      <div className="bg-white border border-slate-100 rounded-2xl p-12 text-center">
+        <ShieldCheck className="w-12 h-12 mx-auto mb-4 text-slate-300" />
+        <p className="text-slate-500 font-medium">{t("noListingsTotal")}</p>
+      </div>
+    );
+  }
+
+  const pending = listings.filter((p) => p.status === "pending");
+  const others = listings.filter((p) => p.status !== "pending");
+
+  return (
+    <div className="space-y-6">
+      {pending.length > 0 && (
+        <div>
+          <h3 className="text-sm font-semibold text-slate-700 mb-3 flex items-center gap-2">
+            <Eye className="w-4 h-4 text-amber-500" />
+            {t("pendingApproval")} ({pending.length})
+          </h3>
+          <div className="space-y-3">
+            {pending.map((p) => (
+              <AdminListingRow key={p.id} product={p} t={t} onRefresh={onRefresh} />
+            ))}
+          </div>
+        </div>
+      )}
+      <div>
+        <h3 className="text-sm font-semibold text-slate-700 mb-3">
+          {t("allListings")} ({others.length})
+        </h3>
+        <div className="space-y-3">
+          {others.map((p) => (
+            <AdminListingRow key={p.id} product={p} t={t} onRefresh={onRefresh} />
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function AdminListingRow({ product, t, onRefresh }) {
+  const images = Array.isArray(product.images) ? product.images : [];
+  const cover = images[0] || product.image;
+  const catStyles = {
+    "Camera singola": { bg: "bg-emerald-100", text: "text-emerald-700" },
+    "Camera doppia": { bg: "bg-blue-100", text: "text-blue-700" },
+    "Posto letto": { bg: "bg-amber-100", text: "text-amber-700" },
+    "Monolocale": { bg: "bg-violet-100", text: "text-violet-700" },
+  };
+  const cat = catStyles[product.category] || { bg: "bg-slate-100", text: "text-slate-600" };
+  const sStyle = statusStyle(product.status || (product.sold ? "rented" : "active"));
+
+  async function handleApprove() {
+    await fetch(`/api/products/${product.id}/approve`, { method: "POST" });
+    onRefresh();
+  }
+
+  async function handleReject() {
+    if (!confirm(t("confirmReject"))) return;
+    await fetch(`/api/products/${product.id}/reject`, { method: "POST" });
+    onRefresh();
+  }
+
+  async function handleDelete() {
+    if (!confirm(t("confirmDelete"))) return;
+    await fetch(`/api/products/${product.id}`, { method: "DELETE" });
+    onRefresh();
+  }
+
+  return (
+    <div className="bg-white rounded-2xl border border-slate-100 p-4 flex gap-4 items-center hover:shadow-sm transition">
+      <Link href={`/products/${product.id}`} className="shrink-0 w-24 h-20 rounded-xl overflow-hidden relative">
+        {cover ? (
+          <Image src={cover} alt={product.title} fill unoptimized className="object-cover" />
+        ) : (
+          <div className="w-full h-full bg-gradient-to-br from-indigo-50 to-slate-100 flex items-center justify-center">
+            <House className="w-6 h-6 text-slate-300" />
+          </div>
+        )}
+      </Link>
+      <div className="flex-1 min-w-0">
+        <div className="flex items-center gap-2 mb-1">
+          <Link href={`/products/${product.id}`} className="font-semibold text-slate-800 hover:text-indigo-600 transition truncate">
+            {product.title}
+          </Link>
+          <span className={"text-[10px] px-2 py-0.5 rounded-full font-medium shrink-0 " + cat.bg + " " + cat.text}>
+            {product.category}
+          </span>
+        </div>
+        <div className="flex items-center gap-3 text-xs text-slate-500">
+          <span className="font-bold text-indigo-700">€{product.price.toLocaleString("de-DE")}</span>
+          {product.city && <span className="flex items-center gap-1"><MapPin className="w-3 h-3" />{product.city}</span>}
+          <span className={"inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-medium " + sStyle.bg + " " + sStyle.text}>
+            <span className={"w-1.5 h-1.5 rounded-full " + sStyle.dot} />
+            {statusLabel(product.status || (product.sold ? "rented" : "active"), t)}
+          </span>
+          <span className="text-slate-400">— {product.seller?.name}</span>
+        </div>
+      </div>
+      <div className="flex items-center gap-1 shrink-0">
+        {product.status === "pending" && (
+          <>
+            <button onClick={handleApprove}
+              className="text-xs px-3 py-1.5 rounded-lg bg-emerald-100 text-emerald-700 hover:bg-emerald-200 transition font-medium flex items-center gap-1"
+            >
+              <CheckCircle2 className="w-3.5 h-3.5" />
+              {t("approve")}
+            </button>
+            <button onClick={handleReject}
+              className="text-xs px-3 py-1.5 rounded-lg bg-red-50 text-red-600 hover:bg-red-100 transition flex items-center gap-1"
+            >
+              <XCircle className="w-3.5 h-3.5" />
+              {t("reject")}
+            </button>
+          </>
         )}
         <button onClick={handleDelete}
           className="text-xs px-3 py-1.5 rounded-lg bg-red-50 text-red-600 hover:bg-red-100 transition"

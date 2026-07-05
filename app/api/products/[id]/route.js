@@ -34,7 +34,7 @@ export async function PATCH(req, { params }) {
   if (!product || product.sellerId !== session.user.id)
     return NextResponse.json({ error: "دسترسی ندارید" }, { status: 403 });
 
-  const updated = await prisma.product.update({ where: { id }, data: { sold: true } });
+  const updated = await prisma.product.update({ where: { id }, data: { sold: true, status: "rented" } });
   return NextResponse.json({ ...updated, images: parseImages(updated) });
 }
 
@@ -45,7 +45,7 @@ export async function DELETE(req, { params }) {
     return NextResponse.json({ error: "لطفاً وارد شوید" }, { status: 401 });
 
   const product = await prisma.product.findUnique({ where: { id } });
-  if (!product || product.sellerId !== session.user.id)
+  if (!product || (product.sellerId !== session.user.id && !session.user.isAdmin))
     return NextResponse.json({ error: "دسترسی ندارید" }, { status: 403 });
 
   await prisma.$executeRawUnsafe("DELETE FROM Message WHERE \"conversationId\" IN (SELECT id FROM Conversation WHERE \"productId\" = ?)", id);
