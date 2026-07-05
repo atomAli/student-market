@@ -24,6 +24,7 @@ function navLinks({ mobile, t, session, isAdmin, unread, closeMenu }) {
             )}
           </Link>
           <Link href="/favorites" className={base} onClick={closeMenu}>{t("favorites")}</Link>
+          <Link href="/dashboard" className={base} onClick={closeMenu}>{t("dashboard")}</Link>
           <div className={mobile ? "border-t border-white/10 my-1" : "hidden"} />
           {isAdmin && (
             <>
