@@ -37,6 +37,10 @@ function navLinks({ mobile, t, session, isAdmin, unread, closeMenu }) {
         </>
       ) : (
         <>
+          <Link href="/map" className={base} onClick={closeMenu}>
+            <MapPin className="w-4 h-4 ml-1" />
+            {t("map")}
+          </Link>
           <Link href="/login" className={base} onClick={closeMenu}>
             {t("login")}
           </Link>
