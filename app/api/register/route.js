@@ -17,22 +17,32 @@ export async function POST(req) {
   const hashed = await bcrypt.hash(password, 10);
   const verificationToken = crypto.randomBytes(32).toString("hex");
 
+  const hasResend = !!process.env.RESEND_API_KEY;
+
   const user = await prisma.user.create({
     data: {
       name,
       email,
       password: hashed,
-      emailVerified: false,
-      verificationToken,
+      emailVerified: !hasResend,
+      verificationToken: hasResend ? verificationToken : null,
     },
   });
 
-  await sendVerificationEmail(email, name, verificationToken);
+  if (hasResend) {
+    await sendVerificationEmail(email, name, verificationToken);
+    return NextResponse.json({
+      id: user.id,
+      name: user.name,
+      email: user.email,
+      message: "Please check your email to verify your account.",
+    });
+  }
 
   return NextResponse.json({
     id: user.id,
     name: user.name,
     email: user.email,
-    message: "Please check your email to verify your account.",
+    message: "Registration successful!",
   });
 }
