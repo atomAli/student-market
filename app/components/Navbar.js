@@ -4,7 +4,7 @@ import { useState, useEffect, useRef } from "react";
 import { useSession, signOut } from "next-auth/react";
 import { useLanguage } from "./LanguageContext";
 import LanguageSwitcher from "./LanguageSwitcher";
-import { GraduationCap } from "lucide-react";
+import { GraduationCap, MapPin, MessageSquare, PlusCircle } from "lucide-react";
 
 function navLinks({ mobile, t, session, isAdmin, unread, closeMenu }) {
   const base = mobile
@@ -15,15 +15,21 @@ function navLinks({ mobile, t, session, isAdmin, unread, closeMenu }) {
       {session ? (
         <>
           <Link href="/map" className={base} onClick={closeMenu}>
+            <MapPin className="w-4 h-4 ml-1" />
             {t("map")}
           </Link>
           <Link href="/chat" className={base + " relative"} onClick={closeMenu}>
+            <MessageSquare className="w-4 h-4 ml-1" />
             {t("chat")}
             {unread > 0 && (
               <span className="inline-flex ml-1.5 bg-red-500 text-white text-[10px] font-bold min-w-[18px] h-[18px] items-center justify-center rounded-full px-1 leading-none">
                 {unread > 99 ? "99+" : unread}
               </span>
             )}
+          </Link>
+          <Link href="/products/new" className={base} onClick={closeMenu}>
+            <PlusCircle className="w-4 h-4 ml-1" />
+            {t("newListing")}
           </Link>
           <Link href="/dashboard" className={base} onClick={closeMenu}>
             {t("dashboard")}
