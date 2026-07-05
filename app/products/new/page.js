@@ -6,6 +6,7 @@ import Link from "next/link";
 import dynamic from "next/dynamic";
 import { useLanguage } from "../../components/LanguageContext";
 import { regions } from "@/lib/cities";
+import { uploadFiles } from "@/lib/uploadthing-client";
 import { Lock, TriangleAlert, Check, X, Camera } from "lucide-react";
 import Image from "next/image";
 
@@ -49,16 +50,26 @@ export default function NewProductPage() {
     const newSlots = files.map(f => ({ preview: URL.createObjectURL(f), url: null, uploading: true, id: Math.random() }));
     setImages(prev => [...prev, ...newSlots]);
 
-    for (let i = 0; i < files.length; i++) {
-      const file = files[i];
-      const slot = newSlots[i];
-      const fd = new FormData();
-      fd.append("file", file);
-      const res = await fetch("/api/upload", { method: "POST", body: fd });
-      const data = await res.json();
-      setImages(prev => prev.map(img =>
-        img.id === slot.id ? { ...img, uploading: false, url: res.ok ? data.url : null, error: !res.ok } : img
-      ));
+    if (typeof window !== "undefined" && window.location.hostname !== "localhost") {
+      const result = await uploadFiles("productImage", { files });
+      setImages(prev => prev.map((img, idx) => ({
+        ...img,
+        uploading: false,
+        url: result?.[idx]?.ufsUrl || result?.[idx]?.url || null,
+        error: !result?.[idx],
+      })));
+    } else {
+      for (let i = 0; i < files.length; i++) {
+        const file = files[i];
+        const slot = newSlots[i];
+        const fd = new FormData();
+        fd.append("file", file);
+        const res = await fetch("/api/upload", { method: "POST", body: fd });
+        const data = await res.json();
+        setImages(prev => prev.map(img =>
+          img.id === slot.id ? { ...img, uploading: false, url: res.ok ? data.url : null, error: !res.ok } : img
+        ));
+      }
     }
     e.target.value = "";
   }
