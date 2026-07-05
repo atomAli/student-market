@@ -166,6 +166,7 @@ export default function ProductPage() {
                 fill
                 sizes="(max-width: 768px) 100vw, 800px"
                 className="object-cover"
+                unoptimized
                 onError={() => markFailed(activeImg)}
               />
               {product.sold && (
@@ -189,7 +190,7 @@ export default function ProductPage() {
                         : "border-transparent opacity-60 hover:opacity-100")
                     }
                   >
-                    <Image src={img} alt="" width={64} height={64} className="object-cover" onError={() => markFailed(i)} />
+                    <Image src={img} alt="" width={64} height={64} unoptimized className="object-cover" onError={() => markFailed(i)} />
                   </button>
                 ))}
               </div>

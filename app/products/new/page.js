@@ -42,6 +42,15 @@ export default function NewProductPage() {
     </div>
   );
 
+  function toBase64(file) {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result);
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
+  }
+
   async function handleFileChange(e) {
     const files = Array.from(e.target.files);
     if (!files.length) return;
@@ -52,13 +61,16 @@ export default function NewProductPage() {
     for (let i = 0; i < files.length; i++) {
       const file = files[i];
       const slot = newSlots[i];
-      const fd = new FormData();
-      fd.append("file", file);
-      const res = await fetch("/api/upload", { method: "POST", body: fd });
-      const data = await res.json();
-      setImages(prev => prev.map(img =>
-        img.id === slot.id ? { ...img, uploading: false, url: res.ok ? data.url : null, error: !res.ok } : img
-      ));
+      try {
+        const base64 = await toBase64(file);
+        setImages(prev => prev.map(img =>
+          img.id === slot.id ? { ...img, uploading: false, url: base64 } : img
+        ));
+      } catch {
+        setImages(prev => prev.map(img =>
+          img.id === slot.id ? { ...img, uploading: false, error: true } : img
+        ));
+      }
     }
     e.target.value = "";
   }
@@ -106,7 +118,7 @@ export default function NewProductPage() {
             <div className="grid grid-cols-3 gap-2 mb-2">
               {images.map(img => (
                 <div key={img.id} className="relative rounded-xl overflow-hidden aspect-square border border-slate-200">
-                  <Image src={img.preview} alt="" fill className="object-cover" />
+                  <Image src={img.preview} alt="" fill unoptimized className="object-cover" />
                   {img.uploading && (
                     <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
                       <svg className="animate-spin h-6 w-6 text-white" fill="none" viewBox="0 0 24 24">

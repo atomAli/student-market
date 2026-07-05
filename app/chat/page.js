@@ -79,6 +79,7 @@ export default function ChatInboxPage() {
                       src={conversation.product.image}
                       alt={conversation.product.title}
                       fill
+                      unoptimized
                       className="object-cover"
                     />
                   ) : (

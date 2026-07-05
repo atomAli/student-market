@@ -60,7 +60,7 @@ export default function ProductCard({ product, favoritedIds }) {
         )}
         {coverImage ? (
           <div className="relative h-44">
-            <Image src={coverImage} alt={product.title} fill sizes="(max-width: 768px) 100vw, 400px" className="object-cover rounded-t-2xl" onError={() => setImgFailed(true)} />
+            <Image src={coverImage} alt={product.title} fill sizes="(max-width: 768px) 100vw, 400px" unoptimized className="object-cover rounded-t-2xl" onError={() => setImgFailed(true)} />
             {images.length > 1 && (
               <span className="absolute bottom-2 left-2 bg-black/60 text-white text-xs px-2 py-0.5 rounded-full">
                 <Camera className="w-3 h-3 inline mr-1" />{images.length}
