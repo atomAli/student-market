@@ -9,26 +9,34 @@ import { GraduationCap, MapPin, MessageSquare, PlusCircle } from "lucide-react";
 function navLinks({ mobile, t, session, isAdmin, unread, closeMenu }) {
   const base = mobile
     ? "block w-full text-left px-4 py-3 text-sm font-medium hover:bg-white/10 transition"
-    : "hover:opacity-75 transition px-2 py-1 rounded-lg hover:bg-white/10 text-xs";
+    : "flex items-center gap-1.5 hover:opacity-75 transition px-3 py-2 rounded-xl hover:bg-white/10 text-sm font-medium";
+
+  const listRoomBtn = mobile
+    ? "block w-full text-left px-4 py-3 text-sm font-bold bg-white text-indigo-700 hover:bg-indigo-50 transition"
+    : "flex items-center gap-1.5 px-4 py-2 rounded-xl bg-white text-indigo-700 font-bold text-sm hover:bg-indigo-50 transition shadow-lg";
   return (
     <>
       {session ? (
         <>
           <Link href="/map" className={base} onClick={closeMenu}>
-            <MapPin className="w-4 h-4 ml-1" />
+            <MapPin className="w-4 h-4" />
             {t("map")}
           </Link>
           <Link href="/chat" className={base + " relative"} onClick={closeMenu}>
-            <MessageSquare className="w-4 h-4 ml-1" />
+            <MessageSquare className="w-4 h-4" />
             {t("chat")}
             {unread > 0 && (
-              <span className="inline-flex ml-1.5 bg-red-500 text-white text-[10px] font-bold min-w-[18px] h-[18px] items-center justify-center rounded-full px-1 leading-none">
+              <span className="inline-flex absolute -top-1 -right-1 bg-red-500 text-white text-[10px] font-bold min-w-[18px] h-[18px] items-center justify-center rounded-full px-1 leading-none">
                 {unread > 99 ? "99+" : unread}
               </span>
             )}
           </Link>
-          <Link href="/products/new" className={base} onClick={closeMenu}>
-            <PlusCircle className="w-4 h-4 ml-1" />
+          <Link
+            href="/products/new"
+            className={listRoomBtn}
+            onClick={closeMenu}
+          >
+            <PlusCircle className="w-4 h-4" />
             {t("newListing")}
           </Link>
           <Link href="/dashboard" className={base} onClick={closeMenu}>
@@ -38,22 +46,13 @@ function navLinks({ mobile, t, session, isAdmin, unread, closeMenu }) {
       ) : (
         <>
           <Link href="/map" className={base} onClick={closeMenu}>
-            <MapPin className="w-4 h-4 ml-1" />
+            <MapPin className="w-4 h-4" />
             {t("map")}
           </Link>
           <Link href="/login" className={base} onClick={closeMenu}>
             {t("login")}
           </Link>
-          <Link
-            href="/register"
-            className={
-              mobile
-                ? "block w-full text-left px-4 py-3 text-sm font-medium text-indigo-200 hover:bg-white/10 transition"
-                : "bg-white px-4 py-1.5 rounded-full font-semibold hover:opacity-90 transition shadow-sm"
-            }
-            style={mobile ? {} : { color: "var(--color-primary)" }}
-            onClick={closeMenu}
-          >
+          <Link href="/register" className={listRoomBtn} onClick={closeMenu}>
             {t("register")}
           </Link>
         </>
@@ -134,7 +133,7 @@ export default function Navbar() {
           <GraduationCap className="w-6 h-6" />
           <span className="text-[10px] sm:text-base">{t("siteName")}</span>
         </Link>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-3">
           <div className="hidden lg:flex items-center gap-2 text-sm font-medium">
             {navLinks({ mobile: false, ...navProps })}
           </div>
