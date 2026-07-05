@@ -22,6 +22,8 @@ import {
   XCircle,
   Eye,
   LogOut,
+  MessageSquare,
+  Palette,
 } from "lucide-react";
 
 export default function DashboardPage() {
@@ -148,7 +150,11 @@ export default function DashboardPage() {
     { key: "listings", icon: List, label: t("myListings") },
     { key: "activity", icon: Clock, label: t("activity") },
     ...(isAdmin
-      ? [{ key: "admin", icon: ShieldCheck, label: t("adminListings") }]
+      ? [
+          { key: "admin", icon: ShieldCheck, label: t("adminListings") },
+          { key: "chatAdmin", icon: MessageSquare, label: t("adminMessages") },
+          { key: "theme", icon: Palette, label: t("themeSettings") },
+        ]
       : []),
   ];
 
@@ -209,6 +215,40 @@ export default function DashboardPage() {
           t={t}
           onRefresh={fetchAdminListings}
         />
+      )}
+      {tab === "chatAdmin" && (
+        <div className="bg-white rounded-2xl border border-slate-100 p-8">
+          <div className="text-center">
+            <MessageSquare className="w-12 h-12 mx-auto mb-4 text-indigo-600" />
+            <h2 className="text-xl font-bold text-slate-800 mb-2">
+              {t("adminMessagesTitle")}
+            </h2>
+            <p className="text-slate-500 mb-4">{t("adminMessagesSubtitle")}</p>
+            <Link
+              href="/admin/messages"
+              className="inline-flex items-center gap-2 bg-indigo-600 text-white px-6 py-3 rounded-xl font-medium hover:bg-indigo-700 transition"
+            >
+              {t("adminMessagesPanel")}
+            </Link>
+          </div>
+        </div>
+      )}
+      {tab === "theme" && (
+        <div className="bg-white rounded-2xl border border-slate-100 p-8">
+          <div className="text-center">
+            <Palette className="w-12 h-12 mx-auto mb-4 text-indigo-600" />
+            <h2 className="text-xl font-bold text-slate-800 mb-2">
+              {t("themeSettings")}
+            </h2>
+            <p className="text-slate-500 mb-4">{t("themeSubtitle")}</p>
+            <Link
+              href="/settings/theme"
+              className="inline-flex items-center gap-2 bg-indigo-600 text-white px-6 py-3 rounded-xl font-medium hover:bg-indigo-700 transition"
+            >
+              {t("themeSettings")}
+            </Link>
+          </div>
+        </div>
       )}
     </div>
   );
