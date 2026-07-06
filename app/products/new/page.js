@@ -44,30 +44,6 @@ export default function NewProductPage() {
     </div>
   );
 
-  function compressToJpeg(file, maxDim = 1920) {
-    return new Promise((resolve) => {
-      const img = new Image();
-      img.onload = () => {
-        let { width, height } = img;
-        if (width > maxDim || height > maxDim) {
-          if (width > height) { height = Math.round((height / width) * maxDim); width = maxDim; }
-          else { width = Math.round((width / height) * maxDim); height = maxDim; }
-        }
-        const canvas = document.createElement("canvas");
-        canvas.width = width; canvas.height = height;
-        const ctx = canvas.getContext("2d");
-        ctx.imageSmoothingEnabled = true;
-        ctx.drawImage(img, 0, 0, width, height);
-        canvas.toBlob(blob => {
-          URL.revokeObjectURL(img.src);
-          resolve(blob || file);
-        }, "image/jpeg", 0.85);
-      };
-      img.onerror = () => resolve(file);
-      img.src = URL.createObjectURL(file);
-    });
-  }
-
   async function handleFileChange(e) {
     const files = Array.from(e.target.files);
     if (!files.length) return;
@@ -80,9 +56,8 @@ export default function NewProductPage() {
       const file = files[i];
       const slot = newSlots[i];
       try {
-        const compressed = await compressToJpeg(file);
         const fd = new FormData();
-        fd.append("file", compressed, "upload.jpg");
+        fd.append("file", file);
         const res = await fetch("/api/upload", { method: "POST", body: fd });
         if (!res.ok) {
           const msg = await res.json().then(d => d.error).catch(() => "آپلود ناموفق");

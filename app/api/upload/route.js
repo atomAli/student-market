@@ -25,6 +25,7 @@ export async function POST(req) {
 
   const bytes = await file.arrayBuffer();
   let buffer = Buffer.from(bytes);
+  let ext = "jpg";
 
   try {
     const img = sharp(buffer);
@@ -33,18 +34,18 @@ export async function POST(req) {
       img.resize({ width: MAX_WIDTH, height: MAX_WIDTH, fit: "inside", withoutEnlargement: true });
     buffer = await img.jpeg({ quality: JPEG_QUALITY, mozjpeg: true }).toBuffer();
   } catch {
-    return NextResponse.json({ error: "فرمت عکس پشتیبانی نمیشه" }, { status: 400 });
+    // if Sharp can't process, save raw file as-is
+    const name = file.name || "";
+    ext = name.includes(".") ? name.split(".").pop().toLowerCase() : "bin";
   }
 
   await mkdir(UPLOAD_DIR, { recursive: true });
 
-  const filename = `${Date.now()}-${Math.random().toString(36).slice(2)}.jpg`;
+  const filename = `${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
   const filepath = path.join(UPLOAD_DIR, filename);
   await writeFile(filepath, buffer);
 
-  const url = IS_PROD
-    ? process.env.NEXTAUTH_URL + "/api/uploads/" + filename
-    : "/uploads/" + filename;
+  const url = IS_PROD ? "/api/uploads/" + filename : "/uploads/" + filename;
 
   return NextResponse.json({ url });
 }
