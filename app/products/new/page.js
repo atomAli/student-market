@@ -42,38 +42,6 @@ export default function NewProductPage() {
     </div>
   );
 
-  function compressImage(file, maxW = 1920, quality = 0.7) {
-    return new Promise((resolve, reject) => {
-      const img = new Image();
-      img.onload = () => {
-        const canvas = document.createElement("canvas");
-        let { width, height } = img;
-        if (width > maxW || height > maxW) {
-          if (width > height) { height = (height / width) * maxW; width = maxW; }
-          else { width = (width / height) * maxW; height = maxW; }
-        }
-        canvas.width = width; canvas.height = height;
-        const ctx = canvas.getContext("2d");
-        ctx.imageSmoothingEnabled = true;
-        ctx.imageSmoothingQuality = "high";
-        ctx.drawImage(img, 0, 0, width, height);
-        const mime = file.type === "image/png" ? "image/webp" : file.type;
-        canvas.toBlob(blob => resolve(blob), mime, quality);
-      };
-      img.onerror = reject;
-      img.src = URL.createObjectURL(file);
-    });
-  }
-
-  function toBase64(blob) {
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onload = () => resolve(reader.result);
-      reader.onerror = reject;
-      reader.readAsDataURL(blob);
-    });
-  }
-
   async function handleFileChange(e) {
     const files = Array.from(e.target.files);
     if (!files.length) return;
@@ -85,10 +53,13 @@ export default function NewProductPage() {
       const file = files[i];
       const slot = newSlots[i];
       try {
-        const compressed = await compressImage(file, 1920, 0.7);
-        const base64 = await toBase64(compressed);
+        const fd = new FormData();
+        fd.append("file", file);
+        const res = await fetch("/api/upload", { method: "POST", body: fd });
+        if (!res.ok) throw new Error("Upload failed");
+        const data = await res.json();
         setImages(prev => prev.map(img =>
-          img.id === slot.id ? { ...img, uploading: false, url: base64 } : img
+          img.id === slot.id ? { ...img, uploading: false, url: data.url } : img
         ));
       } catch {
         setImages(prev => prev.map(img =>
