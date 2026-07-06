@@ -124,7 +124,7 @@ export default function Navbar() {
           className="flex items-center gap-1.5 sm:gap-2 text-lg sm:text-xl font-bold text-white hover:opacity-80 transition"
         >
           <GraduationCap className="w-5 h-5 sm:w-6 sm:h-6" />
-          <span className="text-[10px] sm:text-base">{t("siteName")}</span>
+          <span className="hidden sm:inline text-[10px] sm:text-base">{t("siteName")}</span>
         </Link>
         <div className="flex items-center gap-1 sm:gap-3">
           <div className="hidden lg:flex items-center gap-2 text-sm font-medium">
