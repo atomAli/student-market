@@ -16,7 +16,7 @@ export default function ProductPage() {
   const { id } = useParams();
   const { data: session } = useSession();
   const router = useRouter();
-  const { t } = useLanguage();
+  const { t, lang } = useLanguage();
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -24,6 +24,8 @@ export default function ProductPage() {
   const [actionLoading, setActionLoading] = useState(false);
   const [imgFailed, setImgFailed] = useState({});
   const [favorited, setFavorited] = useState(false);
+  const [translated, setTranslated] = useState(null);
+  const [translating, setTranslating] = useState(false);
   const markFailed = (i) => setImgFailed((prev) => ({ ...prev, [i]: true }));
 
   useEffect(() => {
@@ -227,9 +229,33 @@ export default function ProductPage() {
               )}
             </div>
           </div>
-          <p className="text-slate-600 leading-relaxed mb-6">
-            {product.description}
+          <p className="text-slate-600 leading-relaxed mb-2">
+            {translated || product.description}
           </p>
+          {translating && (
+            <p className="text-xs text-slate-400 mb-2">{t("loading")}</p>
+          )}
+          {!translating && (
+            <button
+              onClick={async () => {
+                if (translated) { setTranslated(null); return; }
+                setTranslating(true);
+                try {
+                  const res = await fetch("/api/translate", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ text: product.description, target: lang }),
+                  });
+                  const data = await res.json();
+                  if (data.translatedText) setTranslated(data.translatedText);
+                } catch {}
+                setTranslating(false);
+              }}
+              className="text-xs text-indigo-500 hover:text-indigo-700 font-medium mb-6 transition"
+            >
+              {translated ? t("showOriginal") : t("translateTo") + " " + ({ fa: "فارسی", en: "English", it: "Italiano" })[lang]}
+            </button>
+          )}
 
           {product.city && (
             <div className="mb-4 text-slate-600 text-sm">
