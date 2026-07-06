@@ -38,6 +38,17 @@ function navLinks({ mobile, t, session, isAdmin, unread, closeMenu }) {
           <Link href="/dashboard" className={base} onClick={closeMenu}>
             {t("dashboard")}
           </Link>
+          {!mobile && (
+            <a
+              href="https://revolut.me/arjomandi"
+              target="_blank"
+              rel="noopener noreferrer"
+              className={base}
+            >
+              <Heart className="w-4 h-4" />
+              {t("donate")}
+            </a>
+          )}
         </>
       ) : (
         <>
@@ -49,6 +60,18 @@ function navLinks({ mobile, t, session, isAdmin, unread, closeMenu }) {
             {t("login")}
           </Link>
         </>
+      )}
+      {mobile && (
+        <a
+          href="https://revolut.me/arjomandi"
+          target="_blank"
+          rel="noopener noreferrer"
+          className={base}
+          onClick={closeMenu}
+        >
+          <Heart className="w-4 h-4" />
+          {t("donate")}
+        </a>
       )}
     </>
   );
@@ -131,45 +154,30 @@ export default function Navbar() {
             {navLinks({ mobile: false, ...navProps })}
           </div>
 
-          {/* always visible CTA */}
           {session ? (
             <Link
               href="/products/new"
-              className="flex items-center gap-1 px-2.5 py-1.5 sm:px-4 sm:py-2 rounded-xl bg-white text-indigo-700 font-bold text-xs sm:text-sm hover:bg-indigo-50 transition shadow-lg whitespace-nowrap"
+              className="flex items-center gap-1 p-1.5 sm:px-4 sm:py-2 rounded-xl bg-white text-indigo-700 font-bold hover:bg-indigo-50 transition shadow-lg"
             >
-              <PlusCircle className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-              <span>{t("newListing")}</span>
+              <PlusCircle className="w-4 h-4 sm:w-4 sm:h-4" />
+              <span className="hidden sm:inline text-sm">{t("newListing")}</span>
             </Link>
           ) : (
             <Link
               href="/register"
-              className="flex items-center gap-1 px-2.5 py-1.5 sm:px-4 sm:py-2 rounded-xl bg-white text-indigo-700 font-bold text-xs sm:text-sm hover:bg-indigo-50 transition shadow-lg whitespace-nowrap"
+              className="flex items-center gap-1 px-2 py-1.5 sm:px-4 sm:py-2 rounded-xl bg-white text-indigo-700 font-bold text-xs sm:text-sm hover:bg-indigo-50 transition shadow-lg"
             >
               {t("register")}
             </Link>
           )}
 
-          <div className="relative group">
-            <a
-              href="https://revolut.me/arjomandi"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center gap-1 px-2.5 py-1.5 sm:px-3 sm:py-2 rounded-xl text-xs sm:text-sm font-medium hover:bg-white/10 transition"
-            >
-              <Heart className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-              <span>{t("donate")}</span>
-            </a>
-            <div className="absolute top-full left-1/2 -translate-x-1/2 mt-2 hidden group-hover:block bg-slate-800 text-white text-xs rounded-lg px-3 py-1.5 whitespace-nowrap shadow-lg z-50">
-              {t("donateRevolut")}
-            </div>
-          </div>
           <LanguageSwitcher />
           {session && (
             <button
               onClick={() => signOut()}
-              className="flex items-center gap-1 px-2 py-1.5 rounded-xl text-xs sm:text-sm font-medium hover:bg-white/10 transition text-red-200 hover:text-red-100"
+              className="flex items-center justify-center w-7 h-7 sm:w-auto sm:h-auto sm:px-2 sm:py-1.5 rounded-xl text-xs sm:text-sm font-medium hover:bg-white/10 transition text-red-200 hover:text-red-100"
             >
-              <LogOut className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+              <LogOut className="w-3.5 h-3.5" />
             </button>
           )}
           <button
