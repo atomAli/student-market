@@ -20,6 +20,6 @@ export async function POST(req, { params }) {
 
     return NextResponse.json({ message: "rejected and deleted" });
   } catch (e) {
-    return NextResponse.json({ error: "خطا در رد محصول" }, { status: 500 });
+    return NextResponse.json({ error: "خطا در رد محصول: " + (e?.message || e) }, { status: 500 });
   }
 }

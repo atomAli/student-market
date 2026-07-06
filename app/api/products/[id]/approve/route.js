@@ -21,6 +21,6 @@ export async function POST(req, { params }) {
 
     return NextResponse.json(updated);
   } catch (e) {
-    return NextResponse.json({ error: "خطا در تأیید محصول" }, { status: 500 });
+    return NextResponse.json({ error: "خطا در تأیید محصول: " + (e?.message || e) }, { status: 500 });
   }
 }

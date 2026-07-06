@@ -38,7 +38,7 @@ export async function PATCH(req, { params }) {
     const updated = await prisma.product.update({ where: { id }, data: { sold: true, status: "rented" } });
     return NextResponse.json({ ...updated, images: parseImages(updated) });
   } catch (e) {
-    return NextResponse.json({ error: "خطا در بروزرسانی محصول" }, { status: 500 });
+    return NextResponse.json({ error: "خطا در بروزرسانی محصول: " + (e?.message || e) }, { status: 500 });
   }
 }
 
@@ -58,6 +58,6 @@ export async function DELETE(req, { params }) {
     await prisma.product.delete({ where: { id } });
     return NextResponse.json({ message: "محصول حذف شد" });
   } catch (e) {
-    return NextResponse.json({ error: "خطا در حذف محصول" }, { status: 500 });
+    return NextResponse.json({ error: "خطا در حذف محصول: " + (e?.message || e) }, { status: 500 });
   }
 }
