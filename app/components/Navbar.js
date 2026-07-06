@@ -10,16 +10,13 @@ import {
   MessageSquare,
   PlusCircle,
   LogOut,
+  Heart,
 } from "lucide-react";
 
 function navLinks({ mobile, t, session, isAdmin, unread, closeMenu }) {
   const base = mobile
     ? "block w-full text-left px-4 py-3 text-sm font-medium hover:bg-white/10 transition"
     : "flex items-center gap-1.5 hover:opacity-75 transition px-3 py-2 rounded-xl hover:bg-white/10 text-sm font-medium";
-
-  const revBase = mobile
-    ? "block w-full text-left px-4 py-3 text-sm font-medium text-amber-200 hover:bg-white/10 transition"
-    : "flex items-center gap-1.5 px-3 py-2 rounded-xl text-sm font-medium text-amber-200 hover:bg-white/10 hover:text-amber-100 transition";
 
   return (
     <>
@@ -62,14 +59,6 @@ function navLinks({ mobile, t, session, isAdmin, unread, closeMenu }) {
           </Link>
         </>
       )}
-
-      <a href="https://revolut.me/arjomandi" target="_blank" rel="noopener noreferrer" className={revBase} onClick={closeMenu}>
-        <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none">
-          <rect x="2" y="2" width="20" height="20" rx="5" fill="#0A0B2E"/>
-          <text x="12" y="16" textAnchor="middle" fill="white" fontSize="13" fontWeight="bold" fontFamily="sans-serif">R</text>
-        </svg>
-        Revolut
-      </a>
     </>
   );
 }
@@ -169,6 +158,19 @@ export default function Navbar() {
             </Link>
           )}
 
+          <div className="relative group">
+            <a
+              href="https://revolut.me/arjomandi"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center justify-center w-8 h-8 sm:w-9 sm:h-9 rounded-lg hover:bg-white/10 transition"
+            >
+              <Heart className="w-4 h-4 sm:w-5 sm:h-5" />
+            </a>
+            <div className="absolute top-full left-1/2 -translate-x-1/2 mt-2 hidden group-hover:block bg-slate-800 text-white text-xs rounded-lg px-3 py-1.5 whitespace-nowrap shadow-lg z-50">
+              حمایت با Revolut ☕
+            </div>
+          </div>
           <LanguageSwitcher />
           <button
             onClick={() => setMenuOpen(!menuOpen)}
