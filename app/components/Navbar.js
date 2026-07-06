@@ -38,15 +38,6 @@ function navLinks({ mobile, t, session, isAdmin, unread, closeMenu }) {
           <Link href="/dashboard" className={base} onClick={closeMenu}>
             {t("dashboard")}
           </Link>
-          <button
-            onClick={() => {
-              signOut();
-              closeMenu();
-            }}
-            className={base + " text-red-300 hover:text-red-200"}
-          >
-            <LogOut className="w-4 h-4" />
-          </button>
         </>
       ) : (
         <>
