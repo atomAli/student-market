@@ -151,7 +151,7 @@ export default function NewProductPage() {
               <span className="text-xs">{t("uploadHint")}</span>
             </button>
           )}
-          <input ref={fileRef} type="file" accept="image/jpeg,image/png,image/webp,image/gif,image/heic,image/heif"
+          <input ref={fileRef} type="file" accept="image/*"
             multiple onChange={handleFileChange} className="hidden" />
         </div>
 
