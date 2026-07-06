@@ -370,7 +370,8 @@ function ListingRow({ product, t, showActions, onRefresh }) {
 
   async function handleDelete() {
     if (!confirm(t("confirmDelete"))) return;
-    await fetch(`/api/products/${product.id}`, { method: "DELETE" });
+    const res = await fetch(`/api/products/${product.id}`, { method: "DELETE" });
+    if (!res.ok) return alert(t("errorOccurred"));
     onRefresh ? onRefresh() : window.location.reload();
   }
 
@@ -550,7 +551,8 @@ function AdminListingRow({ product, t, onRefresh }) {
 
   async function handleDelete() {
     if (!confirm(t("confirmDelete"))) return;
-    await fetch(`/api/products/${product.id}`, { method: "DELETE" });
+    const res = await fetch(`/api/products/${product.id}`, { method: "DELETE" });
+    if (!res.ok) return alert(t("errorOccurred"));
     onRefresh();
   }
 

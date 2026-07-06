@@ -39,17 +39,21 @@ export async function PATCH(req, { params }) {
 }
 
 export async function DELETE(req, { params }) {
-  const { id } = await params;
-  const session = await auth();
-  if (!session)
-    return NextResponse.json({ error: "لطفاً وارد شوید" }, { status: 401 });
+  try {
+    const { id } = await params;
+    const session = await auth();
+    if (!session)
+      return NextResponse.json({ error: "لطفاً وارد شوید" }, { status: 401 });
 
-  const product = await prisma.product.findUnique({ where: { id } });
-  if (!product || (product.sellerId !== session.user.id && !session.user.isAdmin))
-    return NextResponse.json({ error: "دسترسی ندارید" }, { status: 403 });
+    const product = await prisma.product.findUnique({ where: { id } });
+    if (!product || (product.sellerId !== session.user.id && !session.user.isAdmin))
+      return NextResponse.json({ error: "دسترسی ندارید" }, { status: 403 });
 
-  await prisma.$executeRawUnsafe("DELETE FROM Message WHERE \"conversationId\" IN (SELECT id FROM Conversation WHERE \"productId\" = ?)", id);
-  await prisma.$executeRawUnsafe("DELETE FROM Conversation WHERE \"productId\" = ?", id);
-  await prisma.product.delete({ where: { id } });
-  return NextResponse.json({ message: "محصول حذف شد" });
+    await prisma.$executeRawUnsafe("DELETE FROM Message WHERE \"conversationId\" IN (SELECT id FROM Conversation WHERE \"productId\" = ?)", id);
+    await prisma.$executeRawUnsafe("DELETE FROM Conversation WHERE \"productId\" = ?", id);
+    await prisma.product.delete({ where: { id } });
+    return NextResponse.json({ message: "محصول حذف شد" });
+  } catch (e) {
+    return NextResponse.json({ error: "خطا در حذف محصول" }, { status: 500 });
+  }
 }
