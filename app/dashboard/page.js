@@ -162,13 +162,6 @@ export default function DashboardPage() {
           </h1>
           <p className="text-slate-500 text-sm mt-1">{session?.user?.name}</p>
         </div>
-        <button
-          onClick={() => signOut()}
-          className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium bg-red-50 text-red-600 hover:bg-red-100 transition"
-        >
-          <LogOut className="w-4 h-4" />
-          {t("logout")}
-        </button>
       </div>
 
       <div className="flex gap-1 mb-6 border-b border-slate-200 overflow-x-auto">
