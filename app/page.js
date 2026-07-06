@@ -79,32 +79,6 @@ export default function HomePage() {
 
   return (
     <div>
-      <a
-        href="https://revolut.me/arjomandi"
-        target="_blank"
-        rel="noopener noreferrer"
-        className="block mb-8 group"
-      >
-        <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 p-0.5 shadow-lg transition-transform duration-300 group-hover:scale-[1.02]">
-          <div className="rounded-2xl bg-white px-6 py-5 flex items-center justify-between gap-4">
-            <div className="flex items-center gap-4">
-              <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white text-2xl shadow-md">
-                <svg className="w-6 h-6" viewBox="0 0 24 24" fill="currentColor">
-                  <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 15l-4-4 1.41-1.41L11 14.17l5.59-5.59L18 10l-7 7z"/>
-                </svg>
-              </div>
-              <div>
-                <p className="font-bold text-slate-800 text-sm sm:text-base">حمایت از پروژه ☕</p>
-                <p className="text-xs sm:text-sm text-slate-500 mt-0.5">با دونیت به ادامه توسعه این پلتفرم کمک کن</p>
-              </div>
-            </div>
-            <div className="shrink-0 bg-gradient-to-br from-indigo-500 to-purple-600 text-white text-xs sm:text-sm font-bold px-5 py-2.5 rounded-xl shadow-md transition-all duration-300 group-hover:shadow-lg group-hover:from-indigo-600 group-hover:to-purple-700">
-              Donate
-            </div>
-          </div>
-        </div>
-      </a>
-
       <div className="text-center mb-6 py-6">
         <h1 className="text-3xl font-bold text-slate-800 mb-2 flex items-center justify-center gap-2">
           <GraduationCap className="w-8 h-8" />

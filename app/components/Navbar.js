@@ -17,6 +17,10 @@ function navLinks({ mobile, t, session, isAdmin, unread, closeMenu }) {
     ? "block w-full text-left px-4 py-3 text-sm font-medium hover:bg-white/10 transition"
     : "flex items-center gap-1.5 hover:opacity-75 transition px-3 py-2 rounded-xl hover:bg-white/10 text-sm font-medium";
 
+  const revBase = mobile
+    ? "block w-full text-left px-4 py-3 text-sm font-medium text-amber-200 hover:bg-white/10 transition"
+    : "flex items-center gap-1.5 px-3 py-2 rounded-xl text-sm font-medium text-amber-200 hover:bg-white/10 hover:text-amber-100 transition";
+
   return (
     <>
       {session ? (
@@ -58,6 +62,14 @@ function navLinks({ mobile, t, session, isAdmin, unread, closeMenu }) {
           </Link>
         </>
       )}
+
+      <a href="https://revolut.me/arjomandi" target="_blank" rel="noopener noreferrer" className={revBase} onClick={closeMenu}>
+        <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none">
+          <rect x="2" y="2" width="20" height="20" rx="5" fill="#0A0B2E"/>
+          <text x="12" y="16" textAnchor="middle" fill="white" fontSize="13" fontWeight="bold" fontFamily="sans-serif">R</text>
+        </svg>
+        Revolut
+      </a>
     </>
   );
 }
