@@ -8,7 +8,7 @@ import { Vazirmatn } from "next/font/google";
 const vazirmatn = Vazirmatn({ subsets: ["latin", "arabic", "latin-ext"], display: "swap", preload: true });
 
 export const metadata = {
-  title: "Messina Student Homes",
+  title: "Student Homes",
   description: "Student housing rental platform in Messina — rooms, beds & apartments for students",
 };
 
