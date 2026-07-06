@@ -2,11 +2,16 @@ import { NextResponse } from "next/server";
 import { auth } from "@/auth";
 import { writeFile, mkdir } from "fs/promises";
 import path from "path";
+import sharp from "sharp";
 
 const USE_TMP = process.env.VERCEL === "1";
 const UPLOAD_DIR = USE_TMP
   ? "/tmp/uploads"
   : path.join(process.cwd(), "public", "uploads");
+
+const MAX_WIDTH = 1920;
+const JPEG_QUALITY = 70;
+const WEBP_QUALITY = 75;
 
 export async function POST(req) {
   const session = await auth();
@@ -27,12 +32,28 @@ export async function POST(req) {
     return NextResponse.json({ error: "حجم عکس نباید بیشتر از ۵ مگابایت باشه" }, { status: 400 });
 
   const bytes = await file.arrayBuffer();
-  const buffer = Buffer.from(bytes);
+  let buffer = Buffer.from(bytes);
+
+  try {
+    const image = sharp(buffer);
+    const metadata = await image.metadata();
+    if (metadata.width > MAX_WIDTH || metadata.height > MAX_WIDTH) {
+      image.resize({ width: MAX_WIDTH, height: MAX_WIDTH, fit: "inside", withoutEnlargement: true });
+    }
+    const ext = metadata.format === "png" ? "webp" : metadata.format;
+    if (ext === "jpeg") buffer = await image.jpeg({ quality: JPEG_QUALITY, mozjpeg: true }).toBuffer();
+    else if (ext === "webp") buffer = await image.webp({ quality: WEBP_QUALITY }).toBuffer();
+    else if (ext === "png") buffer = await image.webp({ quality: WEBP_QUALITY }).toBuffer();
+    else buffer = await image.toBuffer();
+  } catch (e) {
+    console.error("Sharp processing failed, saving original:", e.message);
+  }
 
   await mkdir(UPLOAD_DIR, { recursive: true });
 
   const ext = file.name.split(".").pop().toLowerCase();
-  const filename = Date.now() + "-" + Math.random().toString(36).slice(2) + "." + ext;
+  const finalExt = ext === "png" ? "webp" : ext;
+  const filename = Date.now() + "-" + Math.random().toString(36).slice(2) + "." + finalExt;
   const filepath = path.join(UPLOAD_DIR, filename);
   await writeFile(filepath, buffer);
 

@@ -42,12 +42,35 @@ export default function NewProductPage() {
     </div>
   );
 
-  function toBase64(file) {
+  function compressImage(file, maxW = 1920, quality = 0.7) {
+    return new Promise((resolve, reject) => {
+      const img = new Image();
+      img.onload = () => {
+        const canvas = document.createElement("canvas");
+        let { width, height } = img;
+        if (width > maxW || height > maxW) {
+          if (width > height) { height = (height / width) * maxW; width = maxW; }
+          else { width = (width / height) * maxW; height = maxW; }
+        }
+        canvas.width = width; canvas.height = height;
+        const ctx = canvas.getContext("2d");
+        ctx.imageSmoothingEnabled = true;
+        ctx.imageSmoothingQuality = "high";
+        ctx.drawImage(img, 0, 0, width, height);
+        const mime = file.type === "image/png" ? "image/webp" : file.type;
+        canvas.toBlob(blob => resolve(blob), mime, quality);
+      };
+      img.onerror = reject;
+      img.src = URL.createObjectURL(file);
+    });
+  }
+
+  function toBase64(blob) {
     return new Promise((resolve, reject) => {
       const reader = new FileReader();
       reader.onload = () => resolve(reader.result);
       reader.onerror = reject;
-      reader.readAsDataURL(file);
+      reader.readAsDataURL(blob);
     });
   }
 
@@ -62,7 +85,8 @@ export default function NewProductPage() {
       const file = files[i];
       const slot = newSlots[i];
       try {
-        const base64 = await toBase64(file);
+        const compressed = await compressImage(file, 1920, 0.7);
+        const base64 = await toBase64(compressed);
         setImages(prev => prev.map(img =>
           img.id === slot.id ? { ...img, uploading: false, url: base64 } : img
         ));
