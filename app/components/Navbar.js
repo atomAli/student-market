@@ -163,12 +163,13 @@ export default function Navbar() {
               href="https://revolut.me/arjomandi"
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center justify-center w-8 h-8 sm:w-9 sm:h-9 rounded-lg hover:bg-white/10 transition"
+              className="flex items-center gap-1 px-2.5 py-1.5 sm:px-3 sm:py-2 rounded-xl text-xs sm:text-sm font-medium hover:bg-white/10 transition"
             >
-              <Heart className="w-4 h-4 sm:w-5 sm:h-5" />
+              <Heart className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+              <span>دونیت</span>
             </a>
             <div className="absolute top-full left-1/2 -translate-x-1/2 mt-2 hidden group-hover:block bg-slate-800 text-white text-xs rounded-lg px-3 py-1.5 whitespace-nowrap shadow-lg z-50">
-              حمایت با Revolut ☕
+              با Revolut ☕
             </div>
           </div>
           <LanguageSwitcher />
