@@ -24,12 +24,12 @@ export async function POST(req) {
   if (!file)
     return NextResponse.json({ error: "فایلی انتخاب نشده" }, { status: 400 });
 
-  const validTypes = ["image/jpeg", "image/png", "image/webp", "image/gif"];
+  const validTypes = ["image/jpeg", "image/png", "image/webp", "image/gif", "image/heic", "image/heif"];
   if (!validTypes.includes(file.type))
-    return NextResponse.json({ error: "فقط عکس (jpg, png, webp) قابل قبوله" }, { status: 400 });
+    return NextResponse.json({ error: "فقط عکس (jpg, png, webp, heic) قابل قبوله" }, { status: 400 });
 
-  if (file.size > 5 * 1024 * 1024)
-    return NextResponse.json({ error: "حجم عکس نباید بیشتر از ۵ مگابایت باشه" }, { status: 400 });
+  if (file.size > 10 * 1024 * 1024)
+    return NextResponse.json({ error: "حجم عکس نباید بیشتر از ۱۰ مگابایت باشه" }, { status: 400 });
 
   const bytes = await file.arrayBuffer();
   let buffer = Buffer.from(bytes);
@@ -40,10 +40,11 @@ export async function POST(req) {
     if (metadata.width > MAX_WIDTH || metadata.height > MAX_WIDTH) {
       image.resize({ width: MAX_WIDTH, height: MAX_WIDTH, fit: "inside", withoutEnlargement: true });
     }
-    const ext = metadata.format === "png" ? "webp" : metadata.format;
-    if (ext === "jpeg") buffer = await image.jpeg({ quality: JPEG_QUALITY, mozjpeg: true }).toBuffer();
-    else if (ext === "webp") buffer = await image.webp({ quality: WEBP_QUALITY }).toBuffer();
-    else if (ext === "png") buffer = await image.webp({ quality: WEBP_QUALITY }).toBuffer();
+    const fmt = metadata.format;
+    if (fmt === "heif" || fmt === "heic") buffer = await image.jpeg({ quality: JPEG_QUALITY, mozjpeg: true }).toBuffer();
+    else if (fmt === "jpeg") buffer = await image.jpeg({ quality: JPEG_QUALITY, mozjpeg: true }).toBuffer();
+    else if (fmt === "webp") buffer = await image.webp({ quality: WEBP_QUALITY }).toBuffer();
+    else if (fmt === "png") buffer = await image.webp({ quality: WEBP_QUALITY }).toBuffer();
     else buffer = await image.toBuffer();
   } catch (e) {
     console.error("Sharp processing failed, saving original:", e.message);
@@ -52,7 +53,8 @@ export async function POST(req) {
   await mkdir(UPLOAD_DIR, { recursive: true });
 
   const ext = file.name.split(".").pop().toLowerCase();
-  const finalExt = ext === "png" ? "webp" : ext;
+  const isHeic = ["heic", "heif"].includes(ext);
+  const finalExt = isHeic ? "jpg" : ext === "png" ? "webp" : ext;
   const filename = Date.now() + "-" + Math.random().toString(36).slice(2) + "." + finalExt;
   const filepath = path.join(UPLOAD_DIR, filename);
   await writeFile(filepath, buffer);
