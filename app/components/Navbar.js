@@ -17,9 +17,6 @@ function navLinks({ mobile, t, session, isAdmin, unread, closeMenu }) {
     ? "block w-full text-left px-4 py-3 text-sm font-medium hover:bg-white/10 transition"
     : "flex items-center gap-1.5 hover:opacity-75 transition px-3 py-2 rounded-xl hover:bg-white/10 text-sm font-medium";
 
-  const listRoomBtn = mobile
-    ? "block w-full text-left px-4 py-3 text-sm font-bold bg-white text-indigo-700 hover:bg-indigo-50 transition"
-    : "flex items-center gap-1.5 px-4 py-2 rounded-xl bg-white text-indigo-700 font-bold text-sm hover:bg-indigo-50 transition shadow-lg";
   return (
     <>
       {session ? (
@@ -36,14 +33,6 @@ function navLinks({ mobile, t, session, isAdmin, unread, closeMenu }) {
                 {unread > 99 ? "99+" : unread}
               </span>
             )}
-          </Link>
-          <Link
-            href="/products/new"
-            className={listRoomBtn}
-            onClick={closeMenu}
-          >
-            <PlusCircle className="w-4 h-4" />
-            {t("newListing")}
           </Link>
           <Link href="/dashboard" className={base} onClick={closeMenu}>
             {t("dashboard")}
@@ -66,9 +55,6 @@ function navLinks({ mobile, t, session, isAdmin, unread, closeMenu }) {
           </Link>
           <Link href="/login" className={base} onClick={closeMenu}>
             {t("login")}
-          </Link>
-          <Link href="/register" className={listRoomBtn} onClick={closeMenu}>
-            {t("register")}
           </Link>
         </>
       )}
@@ -140,23 +126,41 @@ export default function Navbar() {
       }}
       className="text-white shadow-lg"
     >
-      <div className="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
+      <div className="max-w-6xl mx-auto px-3 sm:px-4 py-2 sm:py-3 flex items-center justify-between">
         <Link
           href="/"
-          className="flex items-center gap-2 text-xl font-bold text-white hover:opacity-80 transition"
+          className="flex items-center gap-1.5 sm:gap-2 text-lg sm:text-xl font-bold text-white hover:opacity-80 transition"
         >
-          <GraduationCap className="w-6 h-6" />
+          <GraduationCap className="w-5 h-5 sm:w-6 sm:h-6" />
           <span className="text-[10px] sm:text-base">{t("siteName")}</span>
         </Link>
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-1 sm:gap-3">
           <div className="hidden lg:flex items-center gap-2 text-sm font-medium">
             {navLinks({ mobile: false, ...navProps })}
           </div>
 
+          {/* always visible CTA */}
+          {session ? (
+            <Link
+              href="/products/new"
+              className="flex items-center gap-1 px-2.5 py-1.5 sm:px-4 sm:py-2 rounded-xl bg-white text-indigo-700 font-bold text-xs sm:text-sm hover:bg-indigo-50 transition shadow-lg whitespace-nowrap"
+            >
+              <PlusCircle className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+              <span>{t("newListing")}</span>
+            </Link>
+          ) : (
+            <Link
+              href="/register"
+              className="flex items-center gap-1 px-2.5 py-1.5 sm:px-4 sm:py-2 rounded-xl bg-white text-indigo-700 font-bold text-xs sm:text-sm hover:bg-indigo-50 transition shadow-lg whitespace-nowrap"
+            >
+              {t("register")}
+            </Link>
+          )}
+
           <LanguageSwitcher />
           <button
             onClick={() => setMenuOpen(!menuOpen)}
-            className="lg:hidden w-9 h-9 rounded-lg flex items-center justify-center hover:bg-white/10 transition"
+            className="lg:hidden w-8 h-8 sm:w-9 sm:h-9 rounded-lg flex items-center justify-center hover:bg-white/10 transition"
           >
             <svg
               className="w-5 h-5"
