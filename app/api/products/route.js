@@ -48,7 +48,7 @@ export async function POST(req) {
   if (!session)
     return NextResponse.json({ error: "لطفاً وارد شوید" }, { status: 401 });
 
-  const { title, description, price, category, city, images, address, latitude, longitude } = await req.json();
+  const { title, description, price, category, city, images, address, latitude, longitude, telegram } = await req.json();
   if (!title || !description || !price || !category)
     return NextResponse.json({ error: "فیلدهای اجباری را پر کنید" }, { status: 400 });
 
@@ -67,6 +67,7 @@ export async function POST(req) {
       longitude: longitude !== null && longitude !== undefined && longitude !== "" ? parseFloat(longitude) : null,
       image: coverImage,
       images: JSON.stringify(imagesArr),
+      telegram: telegram || null,
       sellerId: session.user.id,
       status: "pending",
     },

@@ -33,6 +33,7 @@ model Product {
   image       String?
   images      String   @default("[]")
   city        String   @default("Messina")
+  telegram    String?
   sold        Boolean  @default(false)
   status      String   @default("active")
   createdAt DateTime @default(now())

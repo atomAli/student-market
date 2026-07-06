@@ -21,6 +21,8 @@ export default function NewProductPage() {
   const [form, setForm] = useState({ title: "", description: "", price: "", category: "", city: "Messina", province: "Messina", address: "" });
   const [location, setLocation] = useState(null);
   const [images, setImages] = useState([]);   // { preview, url, uploading }
+  const [useTelegram, setUseTelegram] = useState(false);
+  const [telegramId, setTelegramId] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
@@ -82,7 +84,7 @@ export default function NewProductPage() {
     const res = await fetch("/api/products", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ ...form, city: form.city, images: uploadedUrls, latitude: location?.lat || null, longitude: location?.lng || null }),
+      body: JSON.stringify({ ...form, city: form.city, images: uploadedUrls, latitude: location?.lat || null, longitude: location?.lng || null, telegram: useTelegram ? telegramId.trim() : null }),
     });
     const data = await res.json();
     setLoading(false);
@@ -214,7 +216,24 @@ export default function NewProductPage() {
           )}
         </div>
 
-        <button type="submit" disabled={loading || images.some(i => i.uploading)}
+        <div className="bg-slate-50 rounded-xl p-4 border border-slate-200">
+          <label className="flex items-center gap-3 cursor-pointer">
+            <input type="checkbox" checked={useTelegram} onChange={e => { setUseTelegram(e.target.checked); if (!e.target.checked) setTelegramId(""); }}
+              className="w-5 h-5 rounded border-slate-300 text-indigo-600 focus:ring-indigo-400" />
+            <span className="text-sm font-semibold text-slate-700">{t("contactTelegram")}</span>
+          </label>
+          {useTelegram && (
+            <div className="mt-3">
+              <label className="block text-xs font-medium text-slate-500 mb-1">{t("telegramId")}</label>
+              <input type="text" value={telegramId} onChange={e => setTelegramId(e.target.value)}
+                placeholder={t("telegramHint")} required
+                className="w-full border border-slate-200 rounded-xl px-4 py-2.5 text-slate-700 placeholder-slate-300 focus:outline-none focus:ring-2 focus:ring-indigo-400 bg-white" />
+              <p className="text-xs text-slate-400 mt-1">{t("telegramHint")}</p>
+            </div>
+          )}
+        </div>
+
+        <button type="submit" disabled={loading || images.some(i => i.uploading) || (useTelegram && !telegramId.trim())}
           className="w-full text-white py-3 rounded-xl font-semibold transition shadow-sm disabled:opacity-60"
           style={{ background: "var(--color-primary)" }}>
           {loading ? t("submitting") : t("submitListing")}
