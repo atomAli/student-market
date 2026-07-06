@@ -539,13 +539,15 @@ function AdminListingRow({ product, t, onRefresh }) {
   );
 
   async function handleApprove() {
-    await fetch(`/api/products/${product.id}/approve`, { method: "POST" });
+    const res = await fetch(`/api/products/${product.id}/approve`, { method: "POST" });
+    if (!res.ok) return alert(t("errorOccurred"));
     onRefresh();
   }
 
   async function handleReject() {
     if (!confirm(t("confirmReject"))) return;
-    await fetch(`/api/products/${product.id}/reject`, { method: "POST" });
+    const res = await fetch(`/api/products/${product.id}/reject`, { method: "POST" });
+    if (!res.ok) return alert(t("errorOccurred"));
     onRefresh();
   }
 
