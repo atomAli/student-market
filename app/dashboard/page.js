@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect } from "react";
 import { useSession, signOut } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
@@ -75,9 +75,8 @@ export default function DashboardPage() {
       .catch(() => setLoading((p) => ({ ...p, listings: false })));
   }, [session?.user?.id]);
 
-  const fetchAdminListings = useCallback(() => {
+  useEffect(() => {
     if (!session?.user?.id || !isAdmin) return;
-    setLoading((p) => ({ ...p, adminListings: true }));
     fetch("/api/admin/listings")
       .then((r) => r.json())
       .then((data) => {
@@ -86,10 +85,6 @@ export default function DashboardPage() {
       })
       .catch(() => setLoading((p) => ({ ...p, adminListings: false })));
   }, [session?.user?.id, isAdmin]);
-
-  useEffect(() => {
-    fetchAdminListings();
-  }, [fetchAdminListings]);
 
   useEffect(() => {
     if (!session?.user?.id) return;
@@ -213,7 +208,13 @@ export default function DashboardPage() {
           listings={adminListings}
           loading={loading.adminListings}
           t={t}
-          onRefresh={fetchAdminListings}
+          onRefresh={() => {
+            if (!session?.user?.id || !isAdmin) return;
+            fetch("/api/admin/listings")
+              .then((r) => r.json())
+              .then((data) => setAdminListings(Array.isArray(data) ? data : []))
+              .catch(() => {});
+          }}
         />
       )}
       {tab === "chatAdmin" && (

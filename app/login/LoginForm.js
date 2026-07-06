@@ -1,10 +1,10 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { signIn } from "next-auth/react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { useLanguage } from "../components/LanguageContext";
-import { KeyRound, TriangleAlert, Check, Mail } from "lucide-react";
+import { KeyRound, TriangleAlert, Check } from "lucide-react";
 
 export default function LoginForm({ callbackUrl = "/" }) {
   const router = useRouter();
@@ -12,25 +12,19 @@ export default function LoginForm({ callbackUrl = "/" }) {
   const { t } = useLanguage();
   const [form, setForm] = useState({ email: "", password: "" });
   const [error, setError] = useState("");
-  const [success, setSuccess] = useState("");
   const [loading, setLoading] = useState(false);
-
-  useEffect(() => {
-    if (searchParams.get("verified") === "true") {
-      setSuccess("Email verified! You can now log in.");
-    }
-    if (searchParams.get("error") === "invalid-token") {
-      setError("Invalid or expired verification link.");
-    }
-    if (searchParams.get("error") === "already-verified") {
-      setSuccess("Email already verified. You can log in.");
-    }
-  }, [searchParams]);
+  const urlMsg =
+    searchParams.get("verified") === "true"
+      ? { type: "success", text: "Email verified! You can now log in." }
+      : searchParams.get("error") === "already-verified"
+        ? { type: "success", text: "Email already verified. You can log in." }
+        : searchParams.get("error") === "invalid-token"
+          ? { type: "error", text: "Invalid or expired verification link." }
+          : null;
 
   async function handleSubmit(e) {
     e.preventDefault();
     setError("");
-    setSuccess("");
     setLoading(true);
     const res = await signIn("credentials", {
       email: form.email,
@@ -55,9 +49,14 @@ export default function LoginForm({ callbackUrl = "/" }) {
           <h1 className="text-2xl font-bold text-slate-800">{t("loginTitle")}</h1>
           <p className="text-slate-500 text-sm mt-1">{t("loginSubtitle")}</p>
         </div>
-        {success && (
+        {urlMsg?.type === "success" && (
           <div className="bg-green-50 border border-green-200 text-green-700 rounded-xl p-3 mb-4 text-sm flex items-center gap-1">
-            <Check className="w-4 h-4 shrink-0" />{success}
+            <Check className="w-4 h-4 shrink-0" />{urlMsg.text}
+          </div>
+        )}
+        {urlMsg?.type === "error" && !error && (
+          <div className="bg-red-50 border border-red-200 text-red-600 rounded-xl p-3 mb-4 text-sm flex items-center gap-1">
+            <TriangleAlert className="w-4 h-4 shrink-0" />{urlMsg.text}
           </div>
         )}
         {error && (
