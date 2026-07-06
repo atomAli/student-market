@@ -287,7 +287,7 @@ export default function ProductPage() {
                 {actionLoading ? t("loading") : t("contactSeller")}
               </button>
             )}
-            {product.telegram && !isOwner && !product.sold && (
+            {product.telegram && !!session?.user?.id && !isOwner && !product.sold && (
               <a href={"https://t.me/" + product.telegram.replace("@", "")} target="_blank" rel="noopener noreferrer"
                 className="inline-flex items-center gap-2 bg-sky-500 text-white px-6 py-3 rounded-xl font-medium transition hover:bg-sky-600 text-center"
               >
