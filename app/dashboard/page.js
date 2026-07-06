@@ -364,14 +364,15 @@ function ListingRow({ product, t, showActions, onRefresh }) {
 
   async function handleSold() {
     if (!confirm(t("confirmMarkSold"))) return;
-    await fetch(`/api/products/${product.id}`, { method: "PATCH" });
+    const res = await fetch(`/api/products/${product.id}`, { method: "PATCH" });
+    if (!res.ok) { const d = await res.json().catch(() => {}); return alert(d?.error || t("errorOccurred")); }
     onRefresh ? onRefresh() : window.location.reload();
   }
 
   async function handleDelete() {
     if (!confirm(t("confirmDelete"))) return;
     const res = await fetch(`/api/products/${product.id}`, { method: "DELETE" });
-    if (!res.ok) return alert(t("errorOccurred"));
+    if (!res.ok) { const d = await res.json().catch(() => {}); return alert(d?.error || t("errorOccurred")); }
     onRefresh ? onRefresh() : window.location.reload();
   }
 
@@ -540,21 +541,21 @@ function AdminListingRow({ product, t, onRefresh }) {
 
   async function handleApprove() {
     const res = await fetch(`/api/products/${product.id}/approve`, { method: "POST" });
-    if (!res.ok) return alert(t("errorOccurred"));
+    if (!res.ok) { const d = await res.json().catch(() => {}); return alert(d?.error || t("errorOccurred")); }
     onRefresh();
   }
 
   async function handleReject() {
     if (!confirm(t("confirmReject"))) return;
     const res = await fetch(`/api/products/${product.id}/reject`, { method: "POST" });
-    if (!res.ok) return alert(t("errorOccurred"));
+    if (!res.ok) { const d = await res.json().catch(() => {}); return alert(d?.error || t("errorOccurred")); }
     onRefresh();
   }
 
   async function handleDelete() {
     if (!confirm(t("confirmDelete"))) return;
     const res = await fetch(`/api/products/${product.id}`, { method: "DELETE" });
-    if (!res.ok) return alert(t("errorOccurred"));
+    if (!res.ok) { const d = await res.json().catch(() => {}); return alert(d?.error || t("errorOccurred")); }
     onRefresh();
   }
 

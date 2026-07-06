@@ -25,17 +25,21 @@ export async function GET(req, { params }) {
 }
 
 export async function PATCH(req, { params }) {
-  const { id } = await params;
-  const session = await auth();
-  if (!session)
-    return NextResponse.json({ error: "لطفاً وارد شوید" }, { status: 401 });
+  try {
+    const { id } = await params;
+    const session = await auth();
+    if (!session)
+      return NextResponse.json({ error: "لطفاً وارد شوید" }, { status: 401 });
 
-  const product = await prisma.product.findUnique({ where: { id } });
-  if (!product || product.sellerId !== session.user.id)
-    return NextResponse.json({ error: "دسترسی ندارید" }, { status: 403 });
+    const product = await prisma.product.findUnique({ where: { id } });
+    if (!product || product.sellerId !== session.user.id)
+      return NextResponse.json({ error: "دسترسی ندارید" }, { status: 403 });
 
-  const updated = await prisma.product.update({ where: { id }, data: { sold: true, status: "rented" } });
-  return NextResponse.json({ ...updated, images: parseImages(updated) });
+    const updated = await prisma.product.update({ where: { id }, data: { sold: true, status: "rented" } });
+    return NextResponse.json({ ...updated, images: parseImages(updated) });
+  } catch (e) {
+    return NextResponse.json({ error: "خطا در بروزرسانی محصول" }, { status: 500 });
+  }
 }
 
 export async function DELETE(req, { params }) {
