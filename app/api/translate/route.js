@@ -8,15 +8,18 @@ export async function POST(req) {
   if (!text || !target || !SUPPORTED.includes(target))
     return NextResponse.json({ error: "Invalid request" }, { status: 400 });
 
-  const res = await fetch("https://libretranslate.com/translate", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ q: text, source: "auto", target }),
-  });
+  try {
+    const url = "https://translate.googleapis.com/translate_a/single"
+      + "?client=gtx&sl=auto&tl=" + target + "&dt=t&q=" + encodeURIComponent(text);
 
-  if (!res.ok)
+    const res = await fetch(url);
+    if (!res.ok) throw new Error("Google Translate returned " + res.status);
+
+    const data = await res.json();
+    const translated = data[0].map(seg => seg[0]).join("");
+
+    return NextResponse.json({ translatedText: translated });
+  } catch {
     return NextResponse.json({ error: "Translation failed" }, { status: 502 });
-
-  const data = await res.json();
-  return NextResponse.json({ translatedText: data.translatedText });
+  }
 }

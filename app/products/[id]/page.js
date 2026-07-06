@@ -248,6 +248,7 @@ export default function ProductPage() {
                   });
                   const data = await res.json();
                   if (data.translatedText) setTranslated(data.translatedText);
+                  else throw new Error(data.error);
                 } catch {}
                 setTranslating(false);
               }}
