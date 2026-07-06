@@ -173,6 +173,14 @@ export default function Navbar() {
             </div>
           </div>
           <LanguageSwitcher />
+          {session && (
+            <button
+              onClick={() => signOut()}
+              className="flex items-center gap-1 px-2 py-1.5 rounded-xl text-xs sm:text-sm font-medium hover:bg-white/10 transition text-red-200 hover:text-red-100"
+            >
+              <LogOut className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+            </button>
+          )}
           <button
             onClick={() => setMenuOpen(!menuOpen)}
             className="lg:hidden w-8 h-8 sm:w-9 sm:h-9 rounded-lg flex items-center justify-center hover:bg-white/10 transition"
