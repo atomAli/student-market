@@ -38,7 +38,7 @@ export async function PATCH(req, { params }) {
     const updated = await prisma.product.update({ where: { id }, data: { sold: true, status: "rented" } });
     return NextResponse.json({ ...updated, images: parseImages(updated) });
   } catch (e) {
-    return NextResponse.json({ error: "خطا در بروزرسانی محصول: " + (e?.message || e) }, { status: 500 });
+    return NextResponse.json({ error: "خطا در بروزرسانی محصول" }, { status: 500 });
   }
 }
 
@@ -53,11 +53,11 @@ export async function DELETE(req, { params }) {
     if (!product || (product.sellerId !== session.user.id && !session.user.isAdmin))
       return NextResponse.json({ error: "دسترسی ندارید" }, { status: 403 });
 
-    await prisma.$executeRawUnsafe("DELETE FROM Message WHERE \"conversationId\" IN (SELECT id FROM Conversation WHERE \"productId\" = ?)", id);
-    await prisma.$executeRawUnsafe("DELETE FROM Conversation WHERE \"productId\" = ?", id);
+    await prisma.$executeRaw`DELETE FROM "Message" WHERE "conversationId" IN (SELECT id FROM "Conversation" WHERE "productId" = ${id})`;
+    await prisma.$executeRaw`DELETE FROM "Conversation" WHERE "productId" = ${id}`;
     await prisma.product.delete({ where: { id } });
     return NextResponse.json({ message: "محصول حذف شد" });
   } catch (e) {
-    return NextResponse.json({ error: "خطا در حذف محصول: " + (e?.message || e) }, { status: 500 });
+    return NextResponse.json({ error: "خطا در حذف محصول" }, { status: 500 });
   }
 }
