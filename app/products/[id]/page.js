@@ -79,7 +79,9 @@ export default function ProductPage() {
   async function deleteProduct() {
     if (!confirm(t("confirmDelete"))) return;
     setActionLoading(true);
-    await fetch("/api/products/" + id, { method: "DELETE" });
+    const res = await fetch("/api/products/" + id, { method: "DELETE" });
+    setActionLoading(false);
+    if (!res.ok) { const d = await res.json().catch(() => {}); setError(d?.error || t("errorOccurred")); return; }
     router.push("/");
   }
 
@@ -102,6 +104,7 @@ export default function ProductPage() {
       : [];
   const perMonth = t("perMonth");
   const isOwner = session?.user?.id === product.sellerId;
+  const isAdmin = !!session?.user?.isAdmin;
   const canChat = !!session?.user?.id && !isOwner && !product.sold;
 
   async function startConversation() {
@@ -337,25 +340,23 @@ export default function ProductPage() {
                 {t("loginBtn")}
               </button>
             )}
-            {isOwner && (
-              <div className="flex gap-2">
-                {!product.sold && (
-                  <button
-                    onClick={markAsSold}
-                    disabled={actionLoading}
-                    className="bg-amber-500 text-white px-4 py-2 rounded-xl hover:bg-amber-600 transition disabled:opacity-60"
-                  >
-                    {t("markSold")}
-                  </button>
-                )}
-                <button
-                  onClick={deleteProduct}
-                  disabled={actionLoading}
-                  className="bg-red-500 text-white px-4 py-2 rounded-xl hover:bg-red-600 transition disabled:opacity-60"
-                >
-                  {t("deleteListing")}
-                </button>
-              </div>
+            {isOwner && !product.sold && (
+              <button
+                onClick={markAsSold}
+                disabled={actionLoading}
+                className="bg-amber-500 text-white px-4 py-2 rounded-xl hover:bg-amber-600 transition disabled:opacity-60"
+              >
+                {t("markSold")}
+              </button>
+            )}
+            {isAdmin && (
+              <button
+                onClick={deleteProduct}
+                disabled={actionLoading}
+                className="bg-red-500 text-white px-4 py-2 rounded-xl hover:bg-red-600 transition disabled:opacity-60"
+              >
+                {t("deleteListing")}
+              </button>
             )}
           </div>
         </div>
